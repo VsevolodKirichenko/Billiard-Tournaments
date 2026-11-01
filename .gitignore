@@ -2,7 +2,7 @@
 **/bin/
 **/obj/
 TestResults/
-reports/
+/reports/
 *.log
 
 # IDE and OS files
