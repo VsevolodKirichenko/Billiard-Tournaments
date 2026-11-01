@@ -1,0 +1,41 @@
+name: deploy-container
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        options: [staging, production]
+        required: true
+      image:
+        description: 'Published image, e.g. ghcr.io/owner/repository:commit-sha'
+        required: true
+permissions:
+  contents: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+      DEPLOY_ENV: ${{ inputs.environment }}
+      IMAGE: ${{ inputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy an explicitly selected image
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$IMAGE" =~ ^ghcr\.io/[a-z0-9._/-]+:[a-zA-Z0-9._-]+$ ]]
+          [[ "$DEPLOY_ENV" == staging || "$DEPLOY_ENV" == production ]]
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+          target="${SSH_USER}@${SSH_HOST}"
+          path="/opt/billiards-${DEPLOY_ENV}"
+          ssh "$target" "mkdir -p '$path'"
+          scp compose.deploy.yaml "${target}:${path}/compose.deploy.yaml"
+          ssh "$target" "cd '$path' && IMAGE='$IMAGE' docker compose -f compose.deploy.yaml pull && IMAGE='$IMAGE' docker compose -f compose.deploy.yaml up -d"

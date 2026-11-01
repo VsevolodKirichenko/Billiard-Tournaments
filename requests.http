@@ -1,0 +1,43 @@
+@host = http://127.0.0.1:5080
+@token = replace-with-access-token
+@tournament = replace-with-tournament-id
+@match = replace-with-match-id
+
+### Account password is in ignored .env
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{"email":"admin@billiard.local","password":"replace-with-local-admin-password"}
+
+### Create a player
+POST {{host}}/players
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"name":"Player One"}
+
+### List players
+GET {{host}}/players
+
+### Create a tournament with existing player IDs
+POST {{host}}/tournaments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"name":"Club Cup","players":["replace-with-player-id-1","replace-with-player-id-2"]}
+
+### Record or correct the result using the current aggregate version
+PUT {{host}}/tournaments/{{tournament}}/matches/{{match}}/result
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"homeScore":8,"awayScore":3,"expectedVersion":1}
+
+### Immediate tournament standings
+GET {{host}}/tournaments/{{tournament}}/standings
+
+### Asynchronously projected global ranking
+GET {{host}}/statistics/leaderboard
+
+### Excel report
+GET {{host}}/tournaments/{{tournament}}/standings.xlsx

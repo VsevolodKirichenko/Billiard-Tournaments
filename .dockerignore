@@ -1,0 +1,15 @@
+**/bin
+**/obj
+**/data
+.git
+reports
+.env
+TestResults
+.idea
+.vs
+*.user
+*.log
+*.pfx
+*.p12
+*.pem
+*.key

@@ -1,0 +1,29 @@
+# Build and test output
+**/bin/
+**/obj/
+TestResults/
+reports/
+*.log
+
+# IDE and OS files
+.idea/
+.vs/
+*.user
+*.suo
+*.DotSettings.user
+.DS_Store
+Thumbs.db
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+appsettings.Local.json
+appsettings.*.local.json
+*.pfx
+*.p12
+*.pem
+*.key
+
+# Local runtime data
+**/data/
